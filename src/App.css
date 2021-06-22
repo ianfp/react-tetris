@@ -25,3 +25,7 @@
   background: green;
   border-color: darkgreen;
 }
+.cell.yellow {
+  background: yellow;
+  border-color: darkgoldenrod;
+}

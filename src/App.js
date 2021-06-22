@@ -1,6 +1,9 @@
 import './App.css';
 import React from "react";
 
+const TICK_DURATION_MS = 100; // length of animation frame in millis
+const GRAVITY_SPEED = 10; // number of ticks per drop
+
 function App() {
     const height = 20;
     const width = 10;
@@ -22,6 +25,10 @@ class Piece {
     isAt(position) {
         return this.position.x === position.x && this.position.y === position.y;
     }
+
+    moveDown() {
+        return new Piece(this.position.x, this.position.y + 1, this.color);
+    }
 }
 
 function pos(x, y) {
@@ -33,15 +40,16 @@ class Board extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            pieces: [
+            currentPiece: new Piece(0, 0, "yellow"),
+            completedPieces: [
                 new Piece(3, 4, "red"),
                 new Piece(6, 9, "green"),
             ],
         };
+        this.ticksUntilDrop = GRAVITY_SPEED;
     }
 
     render() {
-        console.log('props', this.props);
         const rows = this.mapRows(rowNo => {
             const cells = this.mapCols(colNo => {
                 const position = pos(colNo, rowNo);
@@ -58,8 +66,12 @@ class Board extends React.Component {
     }
 
     getColorAt(position) {
-        const piece = this.state.pieces.find(current => current.isAt(position));
+        const piece = this.allPieces().find(current => current.isAt(position));
         return piece ? piece.color : "none";
+    }
+
+    allPieces() {
+        return this.state.completedPieces.concat([this.state.currentPiece]);
     }
 
     mapRows(fn) {
@@ -68,6 +80,22 @@ class Board extends React.Component {
 
     mapCols(fn) {
         return repeat(this.props.width, (_, colNo) => fn(colNo));
+    }
+
+    componentDidMount() {
+        this.timerId = setInterval(() => this.tick(), TICK_DURATION_MS);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timerId);
+    }
+
+    tick() {
+        --this.ticksUntilDrop;
+        if (this.ticksUntilDrop === 0) {
+            this.ticksUntilDrop = GRAVITY_SPEED;
+            this.setState({currentPiece: this.state.currentPiece.moveDown()});
+        }
     }
 }
 
