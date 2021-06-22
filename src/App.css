@@ -16,3 +16,12 @@
   height: 20px;
   border: 1px solid #999;
 }
+
+.cell.red {
+  background: red;
+  border-color: darkred;
+}
+.cell.green {
+  background: green;
+  border-color: darkgreen;
+}

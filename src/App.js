@@ -18,6 +18,10 @@ class Piece {
         this.position = pos(x, y);
         this.color = color;
     }
+
+    isAt(position) {
+        return this.position.x === position.x && this.position.y === position.y;
+    }
 }
 
 function pos(x, y) {
@@ -30,27 +34,41 @@ class Board extends React.Component {
         super(props);
         this.state = {
             pieces: [
-                new Piece(3, 4),
+                new Piece(3, 4, "red"),
+                new Piece(6, 9, "green"),
             ],
         };
     }
 
     render() {
         console.log('props', this.props);
-        const rows = repeat(this.props.height, (elem, index) => <Row key={index} width={this.props.width}/>);
+        const rows = this.mapRows(rowNo => {
+            const cells = this.mapCols(colNo => {
+                const position = pos(colNo, rowNo);
+                const color = this.getColorAt(position);
+                return <div className={`cell ${color}`} />
+            });
+            return <div className="row">{cells}</div>
+        });
         return (
             <div className="board">
                 {rows}
             </div>
         );
     }
-}
 
-function Row(props) {
-    const cells = repeat(props.width, (elem, index) => <div key={index} className="cell"/> );
-    return (
-        <div className="row">{cells}</div>
-    );
+    getColorAt(position) {
+        const piece = this.state.pieces.find(current => current.isAt(position));
+        return piece ? piece.color : "none";
+    }
+
+    mapRows(fn) {
+        return repeat(this.props.height, (_, rowNo) => fn(rowNo));
+    }
+
+    mapCols(fn) {
+        return repeat(this.props.width, (_, colNo) => fn(colNo));
+    }
 }
 
 function repeat(count, mapFn) {
