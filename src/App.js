@@ -94,8 +94,24 @@ class Board extends React.Component {
         --this.ticksUntilDrop;
         if (this.ticksUntilDrop === 0) {
             this.ticksUntilDrop = GRAVITY_SPEED;
-            this.setState({currentPiece: this.state.currentPiece.moveDown()});
+            if (this.canMoveDown(this.state.currentPiece)) {
+                this.setState({currentPiece: this.state.currentPiece.moveDown()});
+            }
         }
+    }
+
+    canMoveDown(piece) {
+        const moved = piece.moveDown();
+        return !this.isOutOfBounds(moved.position);
+    }
+
+    isOutOfBounds(position) {
+        return (
+            position.x < 0
+            || position.x >= this.props.width
+            || position.y < 0
+            || position.y >= this.props.height
+        );
     }
 }
 
