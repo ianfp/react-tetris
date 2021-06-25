@@ -117,7 +117,11 @@ class Board extends React.Component {
 
     canMoveDown(piece) {
         const moved = piece.moveDown();
-        return !this.isOutOfBounds(moved.position);
+        const obstructed = (
+            this.isOutOfBounds(moved.position)
+            || this.isOccupied(moved.position)
+        );
+        return !obstructed;
     }
 
     isOutOfBounds(position) {
@@ -127,6 +131,10 @@ class Board extends React.Component {
             || position.y < 0
             || position.y >= this.props.height
         );
+    }
+
+    isOccupied(position) {
+        return this.state.completedPieces.some(piece => piece.isAt(position));
     }
 }
 
