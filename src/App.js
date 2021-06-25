@@ -2,7 +2,7 @@ import './App.css';
 import React from "react";
 
 const TICK_DURATION_MS = 100; // length of animation frame in millis
-const GRAVITY_SPEED = 10; // number of ticks per drop
+const GRAVITY_SPEED = 2; // number of ticks per drop
 
 function App() {
     const height = 20;
@@ -41,12 +41,10 @@ class Board extends React.Component {
         super(props);
         this.state = {
             currentPiece: new Piece(0, 0, "yellow"),
-            completedPieces: [
-                new Piece(3, 4, "red"),
-                new Piece(6, 9, "green"),
-            ],
+            completedPieces: [],
         };
         this.ticksUntilDrop = GRAVITY_SPEED;
+        this.ticksUntilFreeze = GRAVITY_SPEED;
     }
 
     render() {
@@ -54,9 +52,9 @@ class Board extends React.Component {
             const cells = this.mapCols(colNo => {
                 const position = pos(colNo, rowNo);
                 const color = this.getColorAt(position);
-                return <div className={`cell ${color}`} />
+                return <div key={colNo} className={`cell ${color}`} />
             });
-            return <div className="row">{cells}</div>
+            return <div key={rowNo} className="row">{cells}</div>
         });
         return (
             <div className="board">
@@ -91,12 +89,29 @@ class Board extends React.Component {
     }
 
     tick() {
+        this.moveCurrentPieceDown();
+        this.freezeCurrentPiece();
+    }
+
+    moveCurrentPieceDown() {
         --this.ticksUntilDrop;
-        if (this.ticksUntilDrop === 0) {
+        if (this.ticksUntilDrop <= 0) {
             this.ticksUntilDrop = GRAVITY_SPEED;
             if (this.canMoveDown(this.state.currentPiece)) {
                 this.setState({currentPiece: this.state.currentPiece.moveDown()});
+            } else {
+                --this.ticksUntilFreeze;
             }
+        }
+    }
+
+    freezeCurrentPiece() {
+        if (this.ticksUntilFreeze <= 0) {
+            this.ticksUntilFreeze = GRAVITY_SPEED;
+            this.setState({
+                completedPieces: this.state.completedPieces.concat([this.state.currentPiece]),
+                currentPiece: new Piece(0, 0, "red")
+            });
         }
     }
 
