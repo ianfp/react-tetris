@@ -44,10 +44,6 @@ function pos(x, y) {
     return {x: x, y: y};
 }
 
-function nextPiece() {
-    return new Piece(0, 0, pickRandomColor());
-}
-
 function pickRandomColor() {
     const index = getRandomInt(COLORS.length);
     return COLORS[index];
@@ -61,11 +57,15 @@ class Board extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentPiece: nextPiece(),
+            currentPiece: this.nextPiece(),
             completedPieces: [],
         };
         this.ticksUntilDrop = GRAVITY_SPEED;
         this.ticksUntilFreeze = GRAVITY_SPEED;
+    }
+
+    nextPiece() {
+        return new Piece(Math.floor(this.props.width / 2), 0, pickRandomColor());
     }
 
     render() {
@@ -131,7 +131,7 @@ class Board extends React.Component {
             this.ticksUntilFreeze = GRAVITY_SPEED;
             this.setState({
                 completedPieces: this.state.completedPieces.concat([this.state.currentPiece]),
-                currentPiece: nextPiece()
+                currentPiece: this.nextPiece()
             });
         }
     }
