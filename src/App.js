@@ -3,6 +3,15 @@ import React from "react";
 
 const TICK_DURATION_MS = 100; // length of animation frame in millis
 const GRAVITY_SPEED = 2; // number of ticks per drop
+const COLORS = [
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "cyan",
+    "blue",
+    "indigo"
+];
 
 function App() {
     const height = 20;
@@ -35,12 +44,24 @@ function pos(x, y) {
     return {x: x, y: y};
 }
 
+function nextPiece() {
+    return new Piece(0, 0, pickRandomColor());
+}
+
+function pickRandomColor() {
+    const index = getRandomInt(COLORS.length);
+    return COLORS[index];
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
 
 class Board extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentPiece: new Piece(0, 0, "yellow"),
+            currentPiece: nextPiece(),
             completedPieces: [],
         };
         this.ticksUntilDrop = GRAVITY_SPEED;
@@ -110,7 +131,7 @@ class Board extends React.Component {
             this.ticksUntilFreeze = GRAVITY_SPEED;
             this.setState({
                 completedPieces: this.state.completedPieces.concat([this.state.currentPiece]),
-                currentPiece: new Piece(0, 0, "red")
+                currentPiece: nextPiece()
             });
         }
     }

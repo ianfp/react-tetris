@@ -21,11 +21,27 @@
   background: red;
   border-color: darkred;
 }
-.cell.green {
-  background: green;
-  border-color: darkgreen;
+.cell.orange {
+  background: orange;
+  border-color: darkorange;
 }
 .cell.yellow {
   background: yellow;
   border-color: darkgoldenrod;
+}
+.cell.green {
+  background: green;
+  border-color: darkgreen;
+}
+.cell.cyan {
+  background: cyan;
+  border-color: darkcyan;
+}
+.cell.blue {
+  background: blue;
+  border-color: darkblue;
+}
+.cell.indigo {
+  background: indigo;
+  border-color: darkslateblue;
 }
