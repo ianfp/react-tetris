@@ -38,6 +38,14 @@ class Piece {
     moveDown() {
         return new Piece(this.position.x, this.position.y + 1, this.color);
     }
+
+    moveLeft() {
+        return new Piece(this.position.x - 1, this.position.y, this.color);
+    }
+
+    moveRight() {
+        return new Piece(this.position.x + 1, this.position.y, this.color);
+    }
 }
 
 function pos(x, y) {
@@ -178,9 +186,23 @@ class Board extends React.Component {
 
     canMoveDown(piece) {
         const moved = piece.moveDown();
+        return this.isObstructed(moved.position);
+    }
+
+    canMoveLeft(piece) {
+        const moved = piece.moveLeft();
+        return this.isObstructed(moved.position);
+    }
+
+    canMoveRight(piece) {
+        const moved = piece.moveRight();
+        return this.isObstructed(moved.position);
+    }
+
+    isObstructed(position) {
         const obstructed = (
-            this.isOutOfBounds(moved.position)
-            || this.isOccupied(moved.position)
+            this.isOutOfBounds(position)
+            || this.isOccupied(position)
         );
         return !obstructed;
     }
@@ -221,11 +243,15 @@ class Board extends React.Component {
     }
 
     moveCurrentPieceLeft() {
-        // TODO: this
+        if (this.canMoveLeft(this.state.currentPiece)) {
+            this.setState({currentPiece: this.state.currentPiece.moveLeft()});
+        }
     }
 
     moveCurrentPieceRight() {
-        // TODO: this
+        if (this.canMoveRight(this.state.currentPiece)) {
+            this.setState({currentPiece: this.state.currentPiece.moveRight()});
+        }
     }
 }
 
