@@ -1,17 +1,9 @@
 import './App.css';
 import React from "react";
+import {pickRandomShape, Piece, pos} from "./Model";
 
 const TICK_DURATION_MS = 100; // length of animation frame in millis
 const GRAVITY_SPEED = 10; // number of ticks per drop
-const COLORS = [
-    "red",
-    "orange",
-    "yellow",
-    "green",
-    "cyan",
-    "blue",
-    "indigo"
-];
 
 function App() {
     const height = 20;
@@ -24,42 +16,6 @@ function App() {
 }
 
 export default App;
-
-class Piece {
-    constructor(x, y, color) {
-        this.position = pos(x, y);
-        this.color = color;
-    }
-
-    isAt(position) {
-        return this.position.x === position.x && this.position.y === position.y;
-    }
-
-    moveDown() {
-        return new Piece(this.position.x, this.position.y + 1, this.color);
-    }
-
-    moveLeft() {
-        return new Piece(this.position.x - 1, this.position.y, this.color);
-    }
-
-    moveRight() {
-        return new Piece(this.position.x + 1, this.position.y, this.color);
-    }
-}
-
-function pos(x, y) {
-    return {x: x, y: y};
-}
-
-function pickRandomColor() {
-    const index = getRandomInt(COLORS.length);
-    return COLORS[index];
-}
-
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-}
 
 class Board extends React.Component {
     constructor(props) {
@@ -91,7 +47,11 @@ class Board extends React.Component {
     }
 
     nextPiece() {
-        return new Piece(Math.floor(this.props.width / 2), 0, pickRandomColor());
+        return new Piece(pickRandomShape(), this.middlePosition(), 0);
+    }
+
+    middlePosition() {
+        return Math.floor(this.props.width / 2);
     }
 
     render() {
@@ -114,7 +74,7 @@ class Board extends React.Component {
     }
 
     getColorAt(position) {
-        const piece = this.allPieces().find(current => current.isAt(position));
+        const piece = this.allPieces().find(current => current.occupies(position));
         return piece ? piece.color : "none";
     }
 
@@ -186,25 +146,25 @@ class Board extends React.Component {
 
     canMoveDown(piece) {
         const moved = piece.moveDown();
-        return this.isObstructed(moved.position);
+        return !this.isObstructed(moved);
     }
 
     canMoveLeft(piece) {
         const moved = piece.moveLeft();
-        return this.isObstructed(moved.position);
+        return !this.isObstructed(moved);
     }
 
     canMoveRight(piece) {
         const moved = piece.moveRight();
-        return this.isObstructed(moved.position);
+        return !this.isObstructed(moved);
     }
 
-    isObstructed(position) {
-        const obstructed = (
-            this.isOutOfBounds(position)
-            || this.isOccupied(position)
-        );
-        return !obstructed;
+    isObstructed(piece) {
+        return piece.occupiedPositions().some(position => this.isObstructedPosition(position));
+    }
+
+    isObstructedPosition(position) {
+        return this.isOutOfBounds(position) || this.isOccupied(position);
     }
 
     isOutOfBounds(position) {
@@ -217,7 +177,7 @@ class Board extends React.Component {
     }
 
     isOccupied(position) {
-        return this.state.completedPieces.some(piece => piece.isAt(position));
+        return this.state.completedPieces.some(piece => piece.occupies(position));
     }
 
     handleKeyPress(keyEvent) {
