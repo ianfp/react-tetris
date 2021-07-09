@@ -11,6 +11,14 @@ class Position {
         return new Position(this.x + other.x, this.y + other.y);
     }
 
+    plusX(x) {
+        return new Position(this.x + x, this.y);
+    }
+
+    plusY(y) {
+        return new Position(this.x, this.y + y);
+    }
+
     equals(other) {
         return this.x === other.x && this.y === other.y;
     }
@@ -87,9 +95,9 @@ function getRandomInt(max) {
  * A piece on the game board.
  */
 export class Piece {
-    constructor(shape, x, y) {
+    constructor(shape, position) {
         this.shape = shape;
-        this.position = pos(x, y);
+        this.position = position;
         this.color = shape.color;
     }
 
@@ -102,14 +110,14 @@ export class Piece {
     }
 
     moveDown() {
-        return new Piece(this.shape, this.position.x, this.position.y + 1);
+        return new Piece(this.shape, this.position.plusY(1));
     }
 
     moveLeft() {
-        return new Piece(this.shape, this.position.x - 1, this.position.y);
+        return new Piece(this.shape, this.position.plusX(-1));
     }
 
     moveRight() {
-        return new Piece(this.shape, this.position.x + 1, this.position.y);
+        return new Piece(this.shape, this.position.plusX(1));
     }
 }

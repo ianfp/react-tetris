@@ -37,7 +37,7 @@ describe("Position", () => {
 
 describe("Piece", () => {
     describe("occupies", () => {
-        const piece = new Piece(LINE, 3, 3);
+        const piece = new Piece(LINE, pos(3, 3));
         [pos(3, 3), pos(4, 3), pos(5,3), pos(6,3)].forEach(expected => {
             it(`is true for ${expected}`, () => {
                 expect(piece.occupies(expected)).toBeTruthy();

@@ -17,6 +17,12 @@ function App() {
 
 export default App;
 
+/**
+ * The game board on which the piece appear and stack up.
+ *
+ * The origin (0, 0) is the top-left square of the game board;
+ * x increases to the right, and y increases as you move *down*.
+ */
 class Board extends React.Component {
     constructor(props) {
         super(props);
@@ -47,11 +53,11 @@ class Board extends React.Component {
     }
 
     nextPiece() {
-        return new Piece(pickRandomShape(), this.middlePosition(), 0);
+        return new Piece(pickRandomShape(), this.topMiddle());
     }
 
-    middlePosition() {
-        return Math.floor(this.props.width / 2);
+    topMiddle() {
+        return pos(Math.floor(this.props.width / 2), 0);
     }
 
     render() {
@@ -145,18 +151,15 @@ class Board extends React.Component {
     }
 
     canMoveDown(piece) {
-        const moved = piece.moveDown();
-        return !this.isObstructed(moved);
+        return !this.isObstructed(piece.moveDown());
     }
 
     canMoveLeft(piece) {
-        const moved = piece.moveLeft();
-        return !this.isObstructed(moved);
+        return !this.isObstructed(piece.moveLeft());
     }
 
     canMoveRight(piece) {
-        const moved = piece.moveRight();
-        return !this.isObstructed(moved);
+        return !this.isObstructed(piece.moveRight());
     }
 
     isObstructed(piece) {
