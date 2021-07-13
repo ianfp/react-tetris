@@ -3,8 +3,8 @@
  */
 class Position {
     constructor(x, y) {
-        this.x = x;
-        this.y = y;
+        this.x = x === 0 ? 0 : x;
+        this.y = y === 0 ? 0 : y;
     }
 
     add(other) {
@@ -17,6 +17,10 @@ class Position {
 
     plusY(y) {
         return new Position(this.x, this.y + y);
+    }
+
+    rotateClockwise() {
+        return new Position(-this.y, this.x);
     }
 
     equals(other) {
@@ -70,6 +74,11 @@ class Shape {
         this.positions = positions;
         this.color = color;
     }
+
+    rotateClockwise() {
+        const newPositions = this.positions.map(p => p.rotateClockwise());
+        return new Shape(newPositions, this.color);
+    }
 }
 
 export const LINE      = new Shape([pos(0,0), pos(1,0), pos(2,0), pos(3,0)], "cyan");
@@ -119,5 +128,9 @@ export class Piece {
 
     moveRight() {
         return new Piece(this.shape, this.position.plusX(1));
+    }
+
+    rotateClockwise() {
+        return new Piece(this.shape.rotateClockwise(), this.position);
     }
 }

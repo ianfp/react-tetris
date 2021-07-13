@@ -33,20 +33,50 @@ describe("Position", () => {
             expect(original.equals(pos(4, 4))).toBeFalsy();
         });
     });
+
+    describe("rotateClockwise", () => {
+        it("origin stays", () => {
+            expect(pos(0, 0).rotateClockwise().equals(pos(0, 0))).toBeTruthy();
+        });
+        it("first quadrant", () => {
+            expect(pos(2, 1).rotateClockwise().equals(pos(-1, 2))).toBeTruthy();
+        });
+    });
+});
+
+describe("Shape", () => {
+    describe("rotateClockwise", () => {
+        it("rotates a line", () => {
+            const result = LINE.rotateClockwise();
+            [pos(0, 0), pos(0, 1), pos(0, 2), pos(0, 3)].forEach(expected => {
+                expect(result.positions.some(p => p.equals(expected))).toBeTruthy();
+            });
+        });
+    });
 });
 
 describe("Piece", () => {
     describe("occupies", () => {
         const piece = new Piece(LINE, pos(3, 3));
-        [pos(3, 3), pos(4, 3), pos(5,3), pos(6,3)].forEach(expected => {
+        [pos(3, 3), pos(4, 3), pos(5, 3), pos(6, 3)].forEach(expected => {
             it(`is true for ${expected}`, () => {
                 expect(piece.occupies(expected)).toBeTruthy();
             });
         });
 
-        [pos(2,3), pos(4,4), pos(4,2), pos(7,3)].forEach(notExpected => {
+        [pos(2, 3), pos(4, 4), pos(4, 2), pos(7, 3)].forEach(notExpected => {
             it(`is false for ${notExpected}`, () => {
                 expect(piece.occupies(notExpected)).toBeFalsy();
+            });
+        });
+    });
+
+    describe("rotateClockwise", () => {
+        it("rotates around the shape origin", () => {
+            const piece = new Piece(LINE, pos(2, 4));
+            const rotated = piece.rotateClockwise();
+            [pos(2, 4), pos(2, 5), pos(2, 6), pos(2, 7)].forEach(expected => {
+                expect(rotated.occupies(expected)).toBeTruthy();
             });
         });
     });

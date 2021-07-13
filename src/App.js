@@ -162,6 +162,10 @@ class Board extends React.Component {
         return !this.isObstructed(piece.moveRight());
     }
 
+    canBeRotated(piece) {
+        return !this.isObstructed(piece.rotateClockwise());
+    }
+
     isObstructed(piece) {
         return piece.occupiedPositions().some(position => this.isObstructedPosition(position));
     }
@@ -196,7 +200,9 @@ class Board extends React.Component {
     }
 
     rotateCurrentPiece() {
-        // implement this once we have pieces with different shapes
+        if (this.canBeRotated(this.state.currentPiece)) {
+            this.setState({currentPiece: this.state.currentPiece.rotateClockwise()});
+        }
     }
 
     zoomCurrentPieceDown() {
