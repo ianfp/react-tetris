@@ -133,4 +133,27 @@ export class Piece {
     rotateClockwise() {
         return new Piece(this.shape.rotateClockwise(), this.position);
     }
+
+    /**
+     * Breaks this Piece into a list of its component Blocks.
+     */
+    decompose() {
+        return this.occupiedPositions().map(position => new Block(this.color, position));
+    }
+}
+
+/**
+ * Once a piece lands and freezes, we decompose it into its component
+ * Blocks. This allows us to remove a horizontal row, which may contain
+ * fragments of multiple pieces.
+ */
+class Block {
+    constructor(color, position) {
+        this.color = color;
+        this.position = position;
+    }
+
+    occupies(position) {
+        return this.position.equals(position);
+    }
 }

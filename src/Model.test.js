@@ -80,4 +80,15 @@ describe("Piece", () => {
             });
         });
     });
+
+    describe("decompose", () => {
+        it("breaks into its component Blocks", () => {
+            const piece = new Piece(LINE, pos(3, 3));
+            const blocks = piece.decompose();
+            expect(blocks.length).toEqual(4);
+            [pos(3, 3), pos(4, 3), pos(5, 3), pos(6, 3)].forEach(position => {
+                expect(blocks.filter(block => block.occupies(position)).length).toEqual(1);
+            });
+        });
+    });
 });

@@ -28,7 +28,7 @@ class Board extends React.Component {
         super(props);
         this.state = {
             currentPiece: this.nextPiece(),
-            completedPieces: [],
+            completedBlocks: [],
         };
         this.boardRef = React.createRef();
         this.ticksUntilDrop = GRAVITY_SPEED;
@@ -80,12 +80,12 @@ class Board extends React.Component {
     }
 
     getColorAt(position) {
-        const piece = this.allPieces().find(current => current.occupies(position));
-        return piece ? piece.color : "none";
+        const block = this.allOccupiedBlocks().find(current => current.occupies(position));
+        return block ? block.color : "none";
     }
 
-    allPieces() {
-        return this.state.completedPieces.concat([this.state.currentPiece]);
+    allOccupiedBlocks() {
+        return this.state.completedBlocks.concat(this.state.currentPiece.decompose());
     }
 
     mapRows(fn) {
@@ -145,7 +145,7 @@ class Board extends React.Component {
     freezeCurrentPiece() {
         this.ticksUntilFreeze = GRAVITY_SPEED;
         this.setState({
-            completedPieces: this.state.completedPieces.concat([this.state.currentPiece]),
+            completedBlocks: this.state.completedBlocks.concat(this.state.currentPiece.decompose()),
             currentPiece: this.nextPiece()
         });
     }
@@ -184,7 +184,7 @@ class Board extends React.Component {
     }
 
     isOccupied(position) {
-        return this.state.completedPieces.some(piece => piece.occupies(position));
+        return this.state.completedBlocks.some(block => block.occupies(position));
     }
 
     handleKeyPress(keyEvent) {
