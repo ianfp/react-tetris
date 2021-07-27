@@ -61,8 +61,8 @@ class Board extends React.Component {
     }
 
     render() {
-        const rows = this.mapRows(rowNo => {
-            const cells = this.mapCols(colNo => {
+        const rows = this.rows().map(rowNo => {
+            const cells = this.cols().map(colNo => {
                 const position = pos(colNo, rowNo);
                 const color = this.getColorAt(position);
                 return <div key={colNo} className={`cell ${color}`}/>
@@ -88,12 +88,12 @@ class Board extends React.Component {
         return this.state.completedBlocks.concat(this.state.currentPiece.decompose());
     }
 
-    mapRows(fn) {
-        return repeat(this.props.height, (_, rowNo) => fn(rowNo));
+    rows() {
+        return repeat(this.props.height, (_, rowNo) => rowNo);
     }
 
-    mapCols(fn) {
-        return repeat(this.props.width, (_, colNo) => fn(colNo));
+    cols() {
+        return repeat(this.props.width, (_, colNo) => colNo);
     }
 
     componentDidMount() {
@@ -148,6 +148,7 @@ class Board extends React.Component {
             completedBlocks: this.state.completedBlocks.concat(this.state.currentPiece.decompose()),
             currentPiece: this.nextPiece()
         });
+        this.checkForCompletedRows();
     }
 
     canMoveDown(piece) {
@@ -221,6 +222,24 @@ class Board extends React.Component {
         if (this.canMoveRight(this.state.currentPiece)) {
             this.setState({currentPiece: this.state.currentPiece.moveRight()});
         }
+    }
+
+    checkForCompletedRows() {
+        this.rows().forEach(rowNo => {
+            if (this.isCompleteRow(rowNo)) {
+                this.deleteRow(rowNo);
+            }
+        });
+    }
+
+    isCompleteRow(rowNo) {
+        return this.cols().every(colNo => this.isOccupied(pos(colNo, rowNo)));
+    }
+
+    deleteRow(rowNo) {
+        this.setState({
+            completedBlocks: this.state.completedBlocks.filter(block => !block.isInRow(rowNo)),
+        });
     }
 }
 

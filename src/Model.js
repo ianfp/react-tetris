@@ -156,4 +156,8 @@ class Block {
     occupies(position) {
         return this.position.equals(position);
     }
+
+    isInRow(rowNo) {
+        return this.position.y === rowNo;
+    }
 }
