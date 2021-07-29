@@ -160,4 +160,12 @@ class Block {
     isInRow(rowNo) {
         return this.position.y === rowNo;
     }
+
+    moveDown() {
+        return new Block(this.color, this.position.plusY(1));
+    }
+
+    isAbove(rowNo) {
+        return this.position.y < rowNo;
+    }
 }

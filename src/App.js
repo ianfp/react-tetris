@@ -228,6 +228,7 @@ class Board extends React.Component {
         this.rows().forEach(rowNo => {
             if (this.isCompleteRow(rowNo)) {
                 this.deleteRow(rowNo);
+                this.moveEverythingDown(rowNo);
             }
         });
     }
@@ -239,6 +240,18 @@ class Board extends React.Component {
     deleteRow(rowNo) {
         this.setState({
             completedBlocks: this.state.completedBlocks.filter(block => !block.isInRow(rowNo)),
+        });
+    }
+
+    /**
+     * Move completed blocks above the given rowNo down.
+     *
+     * This happens after a row is completed.
+     */
+    moveEverythingDown(rowNo) {
+        this.setState({
+            completedBlocks: this.state.completedBlocks
+                .map(block => block.isAbove(rowNo) ? block.moveDown() : block),
         });
     }
 }
