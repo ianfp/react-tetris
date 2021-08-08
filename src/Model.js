@@ -81,13 +81,13 @@ class Shape {
     }
 }
 
-export const LINE      = new Shape([pos(0,0), pos(1,0), pos(2,0), pos(3,0)], "cyan");
-export const LEFTY     = new Shape([pos(0,0), pos(0,1), pos(1,1), pos(2,1)], "blue");
-export const RIGHTY    = new Shape([pos(2,0), pos(0,1), pos(1,1), pos(2,1)], "orange");
+export const LINE      = new Shape([pos(-1,0), pos(0,0), pos(1,0), pos(2,0)], "cyan");
+export const LEFTY     = new Shape([pos(-1,0), pos(-1,1), pos(0,1), pos(1,1)], "blue");
+export const RIGHTY    = new Shape([pos(1,0), pos(-1,1), pos(0,1), pos(1,1)], "orange");
 export const SQUAREY   = new Shape([pos(0,0), pos(1,0), pos(0,1), pos(1,1)], "yellow");
-export const STEP_UP   = new Shape([pos(1,0), pos(2,0), pos(0,1), pos(1,1)], "green");
-export const STEP_DOWN = new Shape([pos(0,0), pos(1,0), pos(1,1), pos(2,1)], "red");
-export const PYRAMID   = new Shape([pos(1,0), pos(0,1), pos(1,1), pos(2,1)], "indigo");
+export const STEP_UP   = new Shape([pos(0,0), pos(1,0), pos(-1,1), pos(0,1)], "green");
+export const STEP_DOWN = new Shape([pos(-1,0), pos(0,0), pos(0,1), pos(1,1)], "red");
+export const PYRAMID   = new Shape([pos(0,0), pos(-1,1), pos(0,1), pos(1,1)], "indigo");
 
 const ALL_SHAPES = [LINE, LEFTY, RIGHTY, SQUAREY, STEP_UP, STEP_DOWN, PYRAMID];
 
