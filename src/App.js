@@ -1,6 +1,7 @@
 import './App.css';
 import React from "react";
-import {pickRandomShape, Piece, pos} from "./Model";
+import {Board} from "./Board";
+import {pos} from "./Position";
 
 const TICK_DURATION_MS = 100; // length of animation frame in millis
 const GRAVITY_SPEED = 10; // number of ticks per drop
@@ -10,7 +11,7 @@ function App() {
     const width = 10;
     return (
         <div className="App">
-            <Board height={height} width={width}/>
+            <BoardComponent board={Board.blank(height, width)}/>
         </div>
     );
 }
@@ -23,12 +24,11 @@ export default App;
  * The origin (0, 0) is the top-left square of the game board;
  * x increases to the right, and y increases as you move *down*.
  */
-class Board extends React.Component {
+class BoardComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentPiece: this.nextPiece(),
-            completedBlocks: [],
+            board: props.board,
         };
         this.boardRef = React.createRef();
         this.ticksUntilDrop = GRAVITY_SPEED;
@@ -45,26 +45,18 @@ class Board extends React.Component {
          * Mapping of key events to the bound methods that they trigger.
          */
         this.keyMap = {
-            "ArrowUp": this.rotateCurrentPiece.bind(this),
-            "ArrowDown": this.zoomCurrentPieceDown.bind(this),
-            "ArrowLeft": this.moveCurrentPieceLeft.bind(this),
-            "ArrowRight": this.moveCurrentPieceRight.bind(this),
+            "ArrowUp": () => this.updateBoard(board => board.rotateCurrentPiece()),
+            "ArrowDown": () => this.updateBoard(board => board.zoomCurrentPieceDown()),
+            "ArrowLeft": () => this.updateBoard(board => board.moveCurrentPieceLeft()),
+            "ArrowRight": () => this.updateBoard(board => board.moveCurrentPieceRight()),
         };
-    }
-
-    nextPiece() {
-        return new Piece(pickRandomShape(), this.topMiddle());
-    }
-
-    topMiddle() {
-        return pos(Math.floor(this.props.width / 2), 0);
     }
 
     render() {
         const rows = this.rows().map(rowNo => {
             const cells = this.cols().map(colNo => {
                 const position = pos(colNo, rowNo);
-                const color = this.getColorAt(position);
+                const color = this.state.board.getColorAt(position);
                 return <div key={colNo} className={`cell ${color}`}/>
             });
             return <div key={rowNo} className="row">{cells}</div>
@@ -79,21 +71,12 @@ class Board extends React.Component {
         );
     }
 
-    getColorAt(position) {
-        const block = this.allOccupiedBlocks().find(current => current.occupies(position));
-        return block ? block.color : "none";
-    }
-
-    allOccupiedBlocks() {
-        return this.state.completedBlocks.concat(this.state.currentPiece.decompose());
-    }
-
     rows() {
-        return repeat(this.props.height, (_, rowNo) => rowNo);
+        return this.state.board.rows();
     }
 
     cols() {
-        return repeat(this.props.width, (_, colNo) => colNo);
+        return this.state.board.cols();
     }
 
     componentDidMount() {
@@ -124,7 +107,7 @@ class Board extends React.Component {
     }
 
     dropOrFreezeCurrentPiece() {
-        if (this.canMoveDown(this.state.currentPiece)) {
+        if (this.state.board.canMoveDown(this.state.board.currentPiece)) {
             --this.ticksUntilDrop;
             if (this.ticksUntilDrop <= 0) {
                 this.moveCurrentPieceDown();
@@ -139,53 +122,16 @@ class Board extends React.Component {
 
     moveCurrentPieceDown() {
         this.ticksUntilDrop = GRAVITY_SPEED;
-        this.setState({currentPiece: this.state.currentPiece.moveDown()});
+        this.updateBoard(board => board.moveCurrentPieceDown());
+    }
+
+    updateBoard(func) {
+        this.setState({board: func(this.state.board)});
     }
 
     freezeCurrentPiece() {
         this.ticksUntilFreeze = GRAVITY_SPEED;
-        this.setState({
-            completedBlocks: this.state.completedBlocks.concat(this.state.currentPiece.decompose()),
-            currentPiece: this.nextPiece()
-        });
-        this.checkForCompletedRows();
-    }
-
-    canMoveDown(piece) {
-        return !this.isObstructed(piece.moveDown());
-    }
-
-    canMoveLeft(piece) {
-        return !this.isObstructed(piece.moveLeft());
-    }
-
-    canMoveRight(piece) {
-        return !this.isObstructed(piece.moveRight());
-    }
-
-    canBeRotated(piece) {
-        return !this.isObstructed(piece.rotateClockwise());
-    }
-
-    isObstructed(piece) {
-        return piece.occupiedPositions().some(position => this.isObstructedPosition(position));
-    }
-
-    isObstructedPosition(position) {
-        return this.isOutOfBounds(position) || this.isOccupied(position);
-    }
-
-    isOutOfBounds(position) {
-        return (
-            position.x < 0
-            || position.x >= this.props.width
-            || position.y < 0
-            || position.y >= this.props.height
-        );
-    }
-
-    isOccupied(position) {
-        return this.state.completedBlocks.some(block => block.occupies(position));
+        this.updateBoard(board => board.freezeCurrentPiece().removeCompletedRows());
     }
 
     handleKeyPress(keyEvent) {
@@ -199,63 +145,4 @@ class Board extends React.Component {
     determineNextMove(key) {
         return this.keyMap.hasOwnProperty(key) ? this.keyMap[key] : null;
     }
-
-    rotateCurrentPiece() {
-        if (this.canBeRotated(this.state.currentPiece)) {
-            this.setState({currentPiece: this.state.currentPiece.rotateClockwise()});
-        }
-    }
-
-    zoomCurrentPieceDown() {
-        if (this.canMoveDown(this.state.currentPiece)) {
-            this.moveCurrentPieceDown();
-        }
-    }
-
-    moveCurrentPieceLeft() {
-        if (this.canMoveLeft(this.state.currentPiece)) {
-            this.setState({currentPiece: this.state.currentPiece.moveLeft()});
-        }
-    }
-
-    moveCurrentPieceRight() {
-        if (this.canMoveRight(this.state.currentPiece)) {
-            this.setState({currentPiece: this.state.currentPiece.moveRight()});
-        }
-    }
-
-    checkForCompletedRows() {
-        this.rows().forEach(rowNo => {
-            if (this.isCompleteRow(rowNo)) {
-                this.deleteRow(rowNo);
-                this.moveEverythingDown(rowNo);
-            }
-        });
-    }
-
-    isCompleteRow(rowNo) {
-        return this.cols().every(colNo => this.isOccupied(pos(colNo, rowNo)));
-    }
-
-    deleteRow(rowNo) {
-        this.setState({
-            completedBlocks: this.state.completedBlocks.filter(block => !block.isInRow(rowNo)),
-        });
-    }
-
-    /**
-     * Move completed blocks above the given rowNo down.
-     *
-     * This happens after a row is completed.
-     */
-    moveEverythingDown(rowNo) {
-        this.setState({
-            completedBlocks: this.state.completedBlocks
-                .map(block => block.isAbove(rowNo) ? block.moveDown() : block),
-        });
-    }
-}
-
-function repeat(count, mapFn) {
-    return Array.from({length: count}, mapFn);
 }
