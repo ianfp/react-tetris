@@ -1,121 +1,77 @@
 import './App.css';
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Board} from "./Board";
 import {pos} from "./Position";
 
 const TICK_DURATION_MS = 100; // length of animation frame in millis
 const GRAVITY_SPEED = 10; // number of ticks per drop
 
+/**
+ * The top-level React component of the game.
+ */
 function App() {
     const height = 20;
     const width = 10;
-    return (
-        <div className="App">
-            <BoardComponent board={Board.blank(height, width)}/>
-        </div>
-    );
-}
+    const [board, setBoard] = useState(Board.blank(height, width));
+    const appRef = React.createRef();
 
-export default App;
+    let ticksUntilDrop = GRAVITY_SPEED;
+    let ticksUntilFreeze = GRAVITY_SPEED;
 
-/**
- * The game board on which the piece appear and stack up.
- *
- * The origin (0, 0) is the top-left square of the game board;
- * x increases to the right, and y increases as you move *down*.
- */
-class BoardComponent extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            board: props.board,
-        };
-        this.boardRef = React.createRef();
-        this.ticksUntilDrop = GRAVITY_SPEED;
-        this.ticksUntilFreeze = GRAVITY_SPEED;
+    /**
+     * The next move made by the player, if they have made one; otherwise null.
+     *
+     * This will be one of the bound functions in [keyMap] below.
+     */
+    let nextMove = null;
 
-        /**
-         * The next move make by the player, if they have made one; otherwise null.
-         *
-         * This will be one of the bound functions in [keyMap] below.
-         */
-        this.nextMove = null;
+    /**
+     * Mapping of key events to the bound methods that they trigger.
+     */
+    const keyMap = {
+        "ArrowUp": () => setBoard(board.rotateCurrentPiece()),
+        "ArrowDown": () => moveCurrentPieceDown(),
+        "ArrowLeft": () => setBoard(board.moveCurrentPieceLeft()),
+        "ArrowRight": () => setBoard(board.moveCurrentPieceRight()),
+    };
 
-        /**
-         * Mapping of key events to the bound methods that they trigger.
-         */
-        this.keyMap = {
-            "ArrowUp": () => this.updateBoard(board => board.rotateCurrentPiece()),
-            "ArrowDown": () => this.moveCurrentPieceDown(),
-            "ArrowLeft": () => this.updateBoard(board => board.moveCurrentPieceLeft()),
-            "ArrowRight": () => this.updateBoard(board => board.moveCurrentPieceRight()),
-        };
-    }
+    useEffect(() => {
+        const timerId = setInterval(tick, TICK_DURATION_MS);
+        return () => clearInterval(timerId);
+    });
 
-    render() {
-        const rows = this.rows().map(rowNo => {
-            const cells = this.cols().map(colNo => {
-                const position = pos(colNo, rowNo);
-                const color = this.state.board.getColorAt(position);
-                return <div key={colNo} className={`cell ${color}`}/>
-            });
-            return <div key={rowNo} className="row">{cells}</div>
-        });
-        return (
-            <main className="board"
-                  ref={this.boardRef}
-                  tabIndex="0"
-                  onKeyDown={event => this.handleKeyPress(event)}>
-                {rows}
-            </main>
-        );
-    }
-
-    rows() {
-        return this.state.board.rows();
-    }
-
-    cols() {
-        return this.state.board.cols();
-    }
-
-    componentDidMount() {
-        this.timerId = setInterval(() => this.tick(), TICK_DURATION_MS);
-        this.boardRef.current.focus(); // ensure the board receives keydown events
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.timerId);
-    }
+    useEffect(() => {
+        appRef.current.focus()
+    });
 
     /**
      * A single animation frame of the game.
      */
-    tick() {
-        this.executeNextMove();
-        this.dropOrFreezeCurrentPiece();
+    function tick() {
+        executeNextMove();
+        dropOrFreezeCurrentPiece();
     }
 
     /**
      * Executes the next move selected by the player.
      */
-    executeNextMove() {
-        if (this.nextMove) {
-            this.nextMove();
-            this.nextMove = null;
+    function executeNextMove() {
+        if (nextMove) {
+            nextMove();
+            nextMove = null;
         }
     }
 
-    dropOrFreezeCurrentPiece() {
-        if (this.state.board.canMoveDown()) {
-            --this.ticksUntilDrop;
-            if (this.ticksUntilDrop <= 0) {
-                this.moveCurrentPieceDown();
+    function dropOrFreezeCurrentPiece() {
+        if (board.canMoveDown()) {
+            --ticksUntilDrop;
+            if (ticksUntilDrop <= 0) {
+                moveCurrentPieceDown();
             }
         } else {
-            --this.ticksUntilFreeze;
-            if (this.ticksUntilFreeze <= 0) {
-                this.freezeCurrentPiece();
+            --ticksUntilFreeze;
+            if (ticksUntilFreeze <= 0) {
+                freezeCurrentPiece();
             }
         }
     }
@@ -128,29 +84,61 @@ class BoardComponent extends React.Component {
      * reset the timer causes an occasional "double drop", which creates a
      * jarring experience for the player.
      */
-    moveCurrentPieceDown() {
-        this.ticksUntilDrop = GRAVITY_SPEED;
-        this.updateBoard(board => board.moveCurrentPieceDown());
+    function moveCurrentPieceDown() {
+        ticksUntilDrop = GRAVITY_SPEED;
+        setBoard(board.moveCurrentPieceDown());
     }
 
-    updateBoard(func) {
-        this.setState({board: func(this.state.board)});
+    function freezeCurrentPiece() {
+        ticksUntilFreeze = GRAVITY_SPEED;
+        setBoard(board.freezeCurrentPiece().removeCompletedRows());
     }
 
-    freezeCurrentPiece() {
-        this.ticksUntilFreeze = GRAVITY_SPEED;
-        this.updateBoard(board => board.freezeCurrentPiece().removeCompletedRows());
-    }
-
-    handleKeyPress(keyEvent) {
-        const nextMove = this.determineNextMove(keyEvent.key);
-        if (nextMove) {
-            this.nextMove = nextMove;
+    function handleKeyPress(keyEvent) {
+        const selectedMove = determineNextMove(keyEvent.key);
+        if (selectedMove) {
+            nextMove = selectedMove;
             keyEvent.preventDefault();
         }
     }
 
-    determineNextMove(key) {
-        return this.keyMap.hasOwnProperty(key) ? this.keyMap[key] : null;
+    function determineNextMove(key) {
+        return keyMap.hasOwnProperty(key) ? keyMap[key] : null;
     }
+
+    return (
+        <div
+            className="App"
+            tabIndex="0"
+            ref={appRef}
+            onKeyDown={event => handleKeyPress(event)}
+        >
+            <BoardComponent board={board}/>
+        </div>
+    );
+}
+
+export default App;
+
+/**
+ * The game board on which the piece appear and stack up.
+ *
+ * The origin (0, 0) is the top-left square of the game board;
+ * x increases to the right, and y increases as you move *down*.
+ */
+function BoardComponent(props) {
+    const rows = props.board.rows().map(rowNo => {
+        const cells = props.board.cols().map(colNo => {
+            const position = pos(colNo, rowNo);
+            const color = props.board.getColorAt(position);
+            return <div key={colNo} className={`cell ${color}`}/>
+        });
+        return <div key={rowNo} className="row">{cells}</div>
+    });
+
+    return (
+        <main className="board">
+            {rows}
+        </main>
+    );
 }

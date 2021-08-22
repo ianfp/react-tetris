@@ -177,7 +177,7 @@ export class Board {
      *
      * This happens after a row is completed.
      *
-     * @return Board the updated board
+     * @return {Board} the updated board
      */
     moveEverythingDown(rowNo) {
         return this.updateCompletedBlocks(
