@@ -53,20 +53,68 @@ export class Board {
         return arrayOf(this.width, (_, colNo) => colNo);
     }
 
-    canMoveDown(piece) {
-        return !this.isObstructed(piece.moveDown());
+    /**
+     * @return {boolean} true if the current piece can move down
+     */
+    canMoveDown() {
+        return !this.isObstructed(this.currentPiece.moveDown());
     }
 
-    canMoveLeft(piece) {
-        return !this.isObstructed(piece.moveLeft());
+    zoomCurrentPieceDown() {
+        return (
+            this.canMoveDown()
+                ? this.moveCurrentPieceDown()
+                : this
+        );
     }
 
-    canMoveRight(piece) {
-        return !this.isObstructed(piece.moveRight());
+    moveCurrentPieceDown() {
+        return this.updateCurrentPiece(this.currentPiece.moveDown());
     }
 
-    canBeRotated(piece) {
-        return !this.isObstructed(piece.rotateClockwise());
+    /**
+     * @return {boolean} true if the current piece can move left
+     */
+    canMoveLeft() {
+        return !this.isObstructed(this.currentPiece.moveLeft());
+    }
+
+    moveCurrentPieceLeft() {
+        return (
+            this.canMoveLeft()
+                ? this.updateCurrentPiece(this.currentPiece.moveLeft())
+                : this
+        );
+    }
+
+    /**
+     * @return {boolean} true if the current piece can move right
+     */
+    canMoveRight() {
+        return !this.isObstructed(this.currentPiece.moveRight());
+    }
+
+    moveCurrentPieceRight() {
+        return (
+            this.canMoveRight()
+                ? this.updateCurrentPiece(this.currentPiece.moveRight())
+                : this
+        );
+    }
+
+    /**
+     * @return {boolean} true if the current piece can rotate
+     */
+    canBeRotated() {
+        return !this.isObstructed(this.currentPiece.rotateClockwise());
+    }
+
+    rotateCurrentPiece() {
+        return (
+            this.canBeRotated()
+                ? this.updateCurrentPiece(this.currentPiece.rotateClockwise())
+                : this
+        );
     }
 
     isObstructed(piece) {
@@ -90,14 +138,6 @@ export class Board {
         return this.completedBlocks.some(block => block.occupies(position));
     }
 
-    rotateCurrentPiece() {
-        return (
-            this.canBeRotated(this.currentPiece)
-                ? this.updateCurrentPiece(this.currentPiece.rotateClockwise())
-                : this
-        );
-    }
-
     updateCurrentPiece(newCurrentPiece) {
         return new Board(this.height, this.width, newCurrentPiece, this.completedBlocks);
     }
@@ -108,34 +148,6 @@ export class Board {
             this.width,
             this.nextPiece(),
             this.completedBlocks.concat(this.currentPiece.decompose())
-        );
-    }
-
-    zoomCurrentPieceDown() {
-        return (
-            this.canMoveDown(this.currentPiece)
-                ? this.moveCurrentPieceDown()
-                : this
-        );
-    }
-
-    moveCurrentPieceDown() {
-        return this.updateCurrentPiece(this.currentPiece.moveDown());
-    }
-
-    moveCurrentPieceLeft() {
-        return (
-            this.canMoveLeft(this.currentPiece)
-                ? this.updateCurrentPiece(this.currentPiece.moveLeft())
-                : this
-        );
-    }
-
-    moveCurrentPieceRight() {
-        return (
-            this.canMoveRight(this.currentPiece)
-                ? this.updateCurrentPiece(this.currentPiece.moveRight())
-                : this
         );
     }
 

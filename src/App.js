@@ -107,7 +107,7 @@ class BoardComponent extends React.Component {
     }
 
     dropOrFreezeCurrentPiece() {
-        if (this.state.board.canMoveDown(this.state.board.currentPiece)) {
+        if (this.state.board.canMoveDown()) {
             --this.ticksUntilDrop;
             if (this.ticksUntilDrop <= 0) {
                 this.moveCurrentPieceDown();
