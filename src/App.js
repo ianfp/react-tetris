@@ -46,7 +46,7 @@ class BoardComponent extends React.Component {
          */
         this.keyMap = {
             "ArrowUp": () => this.updateBoard(board => board.rotateCurrentPiece()),
-            "ArrowDown": () => this.updateBoard(board => board.zoomCurrentPieceDown()),
+            "ArrowDown": () => this.moveCurrentPieceDown(),
             "ArrowLeft": () => this.updateBoard(board => board.moveCurrentPieceLeft()),
             "ArrowRight": () => this.updateBoard(board => board.moveCurrentPieceRight()),
         };
@@ -120,6 +120,14 @@ class BoardComponent extends React.Component {
         }
     }
 
+    /**
+     * Move the current piece down and reset the drop timer.
+     *
+     * We reset the drop timer regardless of whether the piece moves down
+     * by "gravity" or the player moves it. In the latter case, failure to
+     * reset the timer causes an occasional "double drop", which creates a
+     * jarring experience for the player.
+     */
     moveCurrentPieceDown() {
         this.ticksUntilDrop = GRAVITY_SPEED;
         this.updateBoard(board => board.moveCurrentPieceDown());

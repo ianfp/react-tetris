@@ -60,16 +60,12 @@ export class Board {
         return !this.isObstructed(this.currentPiece.moveDown());
     }
 
-    zoomCurrentPieceDown() {
+    moveCurrentPieceDown() {
         return (
             this.canMoveDown()
-                ? this.moveCurrentPieceDown()
+                ? this.updateCurrentPiece(this.currentPiece.moveDown())
                 : this
         );
-    }
-
-    moveCurrentPieceDown() {
-        return this.updateCurrentPiece(this.currentPiece.moveDown());
     }
 
     /**
