@@ -13,6 +13,7 @@ function App() {
     const height = 20;
     const width = 10;
     const [board, setBoard] = useState(Board.blank(height, width));
+    const [gameOver, setGameOver] = useState(false);
     const appRef = React.createRef();
 
     let ticksUntilDrop = GRAVITY_SPEED;
@@ -36,8 +37,10 @@ function App() {
     };
 
     useEffect(() => {
-        const timerId = setInterval(tick, TICK_DURATION_MS);
-        return () => clearInterval(timerId);
+        if (!gameOver) {
+            const timerId = setInterval(tick, TICK_DURATION_MS);
+            return () => clearInterval(timerId);
+        }
     });
 
     useEffect(() => {
@@ -50,6 +53,7 @@ function App() {
     function tick() {
         executeNextMove();
         dropOrFreezeCurrentPiece();
+        checkForGameOver();
     }
 
     /**
@@ -106,6 +110,15 @@ function App() {
         return keyMap.hasOwnProperty(key) ? keyMap[key] : null;
     }
 
+    function checkForGameOver() {
+        setGameOver(board.isGameOver());
+    }
+
+    function restartGame() {
+        setBoard(Board.blank(height, width));
+        setGameOver(false);
+    }
+
     return (
         <div
             className="App"
@@ -114,6 +127,7 @@ function App() {
             onKeyDown={event => handleKeyPress(event)}
         >
             <BoardComponent board={board}/>
+            <GameOverComponent gameOver={gameOver} restartGame={restartGame}/>
         </div>
     );
 }
@@ -140,5 +154,21 @@ function BoardComponent(props) {
         <main className="board">
             {rows}
         </main>
+    );
+}
+
+/**
+ * Displays if the game is over.
+ */
+function GameOverComponent(props) {
+    return props.gameOver ? (
+        <div className="game-over">
+            Game over!
+            <button onClick={props.restartGame}>
+                Start over
+            </button>
+        </div>
+    ) : (
+        <div className="game-over"/>
     );
 }

@@ -185,4 +185,8 @@ export class Board {
                 .map(block => block.isAbove(rowNo) ? block.moveDown() : block)
         );
     }
+
+    isGameOver() {
+        return this.completedBlocks.some(block => block.isInRow(0));
+    }
 }

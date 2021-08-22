@@ -33,6 +33,26 @@ describe("Board", () => {
             expect(result.completedBlocks).toHaveLength(0);
         });
     });
+
+    describe("isGameOver", () => {
+        it("is when top row is occupied", () => {
+            const board = Board.blank(4, 4);
+            board.completedBlocks = [ blockAt(0, 0) /* top-left */ ];
+            expect(board.isGameOver()).toBeTruthy();
+        });
+
+        it("is not when top row is empty", () => {
+            const board = Board.blank(4, 4);
+            board.completedBlocks = [ blockAt(3, 1) /* second row down */ ];
+            expect(board.isGameOver()).toBeFalsy();
+        });
+
+        it("is not when board is empty", () => {
+            const board = Board.blank(4, 4);
+            board.completedBlocks = [ /* empty */ ];
+            expect(board.isGameOver()).toBeFalsy();
+        });
+    });
 });
 
 function blockAt(x, y) {
