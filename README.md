@@ -3,8 +3,11 @@
 I wanted to learn [React][react], so I thought [Tetris][tetris] would
 be a fun project for this purpose.
 
+The application is currently hosted [here][live].
+
 [react]: https://reactjs.org/
 [tetris]: https://tetris.com/
+[live]: https://react-tetris-8tl2z.ondigitalocean.app/
 
 ## How to try this locally
 
