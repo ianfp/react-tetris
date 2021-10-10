@@ -1,10 +1,16 @@
+#root {
+  display: flex;
+  justify-content: center;
+}
+
 .App {
-  text-align: center;
+  display: block;
+  margin: 0 auto;
 }
 
 .board {
   background: #bbb;
-  display: inline-block;
+  margin: 0 auto;
 }
 
 .row {
@@ -44,4 +50,28 @@
 .cell.indigo {
   background: indigo;
   border-color: darkslateblue;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 33%;
+  grid-template-areas:
+    "empty1 rotate empty2"
+    "left   down  right";
+  margin-top: 1em;
+}
+.controls button {
+  padding: 8px 0;
+}
+.controls .rotate {
+  grid-area: rotate;
+}
+.controls .left {
+  grid-area: left;
+}
+.controls .down {
+  grid-area: down;
+}
+.controls .right {
+  grid-area: right;
 }

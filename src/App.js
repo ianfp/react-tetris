@@ -26,14 +26,21 @@ function App() {
      */
     let nextMove = null;
 
+    const controls = {
+        rotate: () => setBoard(board.rotateCurrentPiece()),
+        down: () => moveCurrentPieceDown(),
+        left: () => setBoard(board.moveCurrentPieceLeft()),
+        right: () => setBoard(board.moveCurrentPieceRight()),
+    }
+
     /**
      * Mapping of key events to the bound methods that they trigger.
      */
     const keyMap = {
-        "ArrowUp": () => setBoard(board.rotateCurrentPiece()),
-        "ArrowDown": () => moveCurrentPieceDown(),
-        "ArrowLeft": () => setBoard(board.moveCurrentPieceLeft()),
-        "ArrowRight": () => setBoard(board.moveCurrentPieceRight()),
+        "ArrowUp": controls.rotate,
+        "ArrowDown": controls.down,
+        "ArrowLeft": controls.left,
+        "ArrowRight": controls.right,
     };
 
     useEffect(() => {
@@ -127,6 +134,7 @@ function App() {
             onKeyDown={event => handleKeyPress(event)}
         >
             <BoardComponent board={board}/>
+            <ControlsComponent {...controls} />
             <GameOverComponent gameOver={gameOver} restartGame={restartGame}/>
         </div>
     );
@@ -170,5 +178,16 @@ function GameOverComponent(props) {
         </div>
     ) : (
         <div className="game-over"/>
+    );
+}
+
+function ControlsComponent(props) {
+    return (
+        <div className="controls">
+            <button onClick={props.rotate} className="rotate">Rotate</button>
+            <button onClick={props.left} className="left">Left</button>
+            <button onClick={props.down} className="down">Down</button>
+            <button onClick={props.right} className="right">Right</button>
+        </div>
     );
 }
