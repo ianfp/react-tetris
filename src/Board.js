@@ -28,6 +28,13 @@ export class Board {
         return new Board(height, width, null, []);
     }
 
+    /**
+     * Clears the board when restarting the game.
+     */
+    clear() {
+        return Board.blank(this.height, this.width);
+    }
+
     nextPiece() {
         return new Piece(pickRandomShape(), this.topMiddle());
     }

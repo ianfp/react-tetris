@@ -2,6 +2,7 @@ import './App.css';
 import React, {useEffect, useState} from "react";
 import {Board} from "./Board";
 import {pos} from "./Position";
+import {Game} from "./Game";
 
 /**
  * Length of an animation frame in milliseconds.
@@ -11,29 +12,13 @@ import {pos} from "./Position";
 const TICK_DURATION_MS = 100;
 
 /**
- * The number of ticks it takes "gravity" to pull the current piece down one square.
- */
-const GRAVITY_SPEED = 10;
-
-/**
  * The top-level React component of the game.
  */
 function App() {
     const height = 20;
     const width = 10;
-    const [board, setBoard] = useState(Board.blank(height, width));
-    const [gameOver, setGameOver] = useState(false);
+    const [game, setGame] = useState(new Game(Board.blank(height, width)));
     const appRef = React.createRef();
-
-    /**
-     * How many ticks remain until "gravity" pulls the current piece down one square.
-     */
-    let ticksUntilDrop = GRAVITY_SPEED;
-
-    /**
-     * How many ticks remain until the current piece is locked in place.
-     */
-    let ticksUntilFreeze = GRAVITY_SPEED;
 
     /**
      * The next move made by the player, if they have made one; otherwise null.
@@ -43,10 +28,10 @@ function App() {
     let nextMove = null;
 
     const controls = {
-        rotate: () => setBoard(board.rotateCurrentPiece()),
-        down: () => moveCurrentPieceDown(),
-        left: () => setBoard(board.moveCurrentPieceLeft()),
-        right: () => setBoard(board.moveCurrentPieceRight()),
+        rotate: () => game.rotateCurrentPiece(),
+        down: () => game.moveCurrentPieceDown(),
+        left: () => game.moveCurrentPieceLeft(),
+        right: () => game.moveCurrentPieceRight(),
     }
 
     /**
@@ -63,7 +48,7 @@ function App() {
      * Call the tick() function on every animation frame.
      */
     useEffect(() => {
-        if (!gameOver) {
+        if (!game.isOver()) {
             const timerId = setInterval(tick, TICK_DURATION_MS);
             return () => clearInterval(timerId);
         }
@@ -81,51 +66,23 @@ function App() {
      * A single animation frame of the game.
      */
     function tick() {
-        executeNextMove();
-        dropOrFreezeCurrentPiece();
-        checkForGameOver();
+        const updatedGame = executeNextMove()
+            .dropOrFreezeCurrentPiece();
+        setGame(updatedGame);
     }
 
     /**
      * Executes the next move selected by the player.
+     *
+     * @return {Game} the possibly updated game state
      */
     function executeNextMove() {
+        let updatedGame = game;
         if (nextMove) {
-            nextMove();
+            updatedGame = nextMove();
             nextMove = null;
         }
-    }
-
-    function dropOrFreezeCurrentPiece() {
-        if (board.canMoveDown()) {
-            --ticksUntilDrop;
-            if (ticksUntilDrop <= 0) {
-                moveCurrentPieceDown();
-            }
-        } else {
-            --ticksUntilFreeze;
-            if (ticksUntilFreeze <= 0) {
-                freezeCurrentPiece();
-            }
-        }
-    }
-
-    /**
-     * Move the current piece down and reset the drop timer.
-     *
-     * We reset the drop timer regardless of whether the piece moves down
-     * by "gravity" or the player moves it. In the latter case, failure to
-     * reset the timer causes an occasional "double drop", which creates a
-     * jarring experience for the player.
-     */
-    function moveCurrentPieceDown() {
-        ticksUntilDrop = GRAVITY_SPEED;
-        setBoard(board.moveCurrentPieceDown());
-    }
-
-    function freezeCurrentPiece() {
-        ticksUntilFreeze = GRAVITY_SPEED;
-        setBoard(board.freezeCurrentPiece().removeCompletedRows());
+        return updatedGame;
     }
 
     function handleKeyPress(keyEvent) {
@@ -140,13 +97,8 @@ function App() {
         return keyMap.hasOwnProperty(key) ? keyMap[key] : null;
     }
 
-    function checkForGameOver() {
-        setGameOver(board.isGameOver());
-    }
-
     function restartGame() {
-        setBoard(Board.blank(height, width));
-        setGameOver(false);
+        setGame(game.restart());
     }
 
     return (
@@ -156,9 +108,9 @@ function App() {
             ref={appRef}
             onKeyDown={event => handleKeyPress(event)}
         >
-            <BoardComponent board={board}/>
+            <BoardComponent board={game.board}/>
             <ControlsComponent {...controls} />
-            <GameOverComponent gameOver={gameOver} restartGame={restartGame}/>
+            <GameOverComponent gameOver={game.isOver()} restartGame={restartGame}/>
         </div>
     );
 }
