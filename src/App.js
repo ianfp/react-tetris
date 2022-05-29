@@ -88,9 +88,13 @@ function App() {
     function handleKeyPress(keyEvent) {
         const selectedMove = determineNextMove(keyEvent.key);
         if (selectedMove) {
-            nextMove = selectedMove;
+            setNextMove(selectedMove);
             keyEvent.preventDefault();
         }
+    }
+
+    function setNextMove(selected) {
+        nextMove = selected;
     }
 
     function determineNextMove(key) {
@@ -109,7 +113,7 @@ function App() {
             onKeyDown={event => handleKeyPress(event)}
         >
             <BoardComponent board={game.board}/>
-            <ControlsComponent {...controls} />
+            <ControlsComponent {...controls} setNextMove={setNextMove} />
             <GameOverComponent gameOver={game.isOver()} restartGame={restartGame}/>
         </div>
     );
@@ -159,10 +163,10 @@ function GameOverComponent(props) {
 function ControlsComponent(props) {
     return (
         <div className="controls">
-            <button onClick={props.rotate} className="rotate">Rotate</button>
-            <button onClick={props.left} className="left">Left</button>
-            <button onClick={props.down} className="down">Down</button>
-            <button onClick={props.right} className="right">Right</button>
+            <button onClick={() => props.setNextMove(props.rotate)} className="rotate">Rotate</button>
+            <button onClick={() => props.setNextMove(props.left)} className="left">Left</button>
+            <button onClick={() => props.setNextMove(props.down)} className="down">Down</button>
+            <button onClick={() => props.setNextMove(props.right)} className="right">Right</button>
         </div>
     );
 }
