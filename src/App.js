@@ -114,6 +114,7 @@ function App() {
         >
             <BoardComponent board={game.board}/>
             <ControlsComponent {...controls} setNextMove={setNextMove} />
+            <ScoreComponent score={game.getScore()} />
             <GameOverComponent gameOver={game.isOver()} restartGame={restartGame}/>
         </div>
     );
@@ -167,6 +168,14 @@ function ControlsComponent(props) {
             <button onClick={() => props.setNextMove(props.left)} className="left">Left</button>
             <button onClick={() => props.setNextMove(props.down)} className="down">Down</button>
             <button onClick={() => props.setNextMove(props.right)} className="right">Right</button>
+        </div>
+    );
+}
+
+function ScoreComponent(props) {
+    return (
+        <div className="score">
+            Score: {props.score}
         </div>
     );
 }

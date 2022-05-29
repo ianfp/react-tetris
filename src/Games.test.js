@@ -2,18 +2,11 @@ import {Game} from "./Game";
 import {Ticks} from "./Ticks";
 
 class FakeBoard {
-    constructor(canMoveDown) {
-        this.canMove = canMoveDown;
+    constructor(props) {
+        this.canMove = props.canMoveDown ?? true;
+        this.numCompletedRows = props.completedRows ?? 0;
         this.movedDown = 0;
         this.frozen = 0;
-    }
-
-    static thatCanMoveDown() {
-        return new FakeBoard(true);
-    }
-
-    static thatCannotMoveDown() {
-        return new FakeBoard(false);
     }
 
     canMoveDown() {
@@ -30,6 +23,10 @@ class FakeBoard {
         return this;
     }
 
+    countCompletedRows() {
+        return this.numCompletedRows;
+    }
+
     removeCompletedRows() {
         return this;
     }
@@ -38,7 +35,7 @@ class FakeBoard {
 describe("Game", () => {
     describe("dropOrFreezeCurrentPiece", () => {
         describe("should drop in two ticks", () => {
-            const board = FakeBoard.thatCanMoveDown();
+            const board = new FakeBoard({canMoveDown: true});
             let game = new Game(board, new Ticks(2, 2));
             game = game.dropOrFreezeCurrentPiece();
 
@@ -53,7 +50,7 @@ describe("Game", () => {
         });
 
         describe("should drop on the next tick", () => {
-            const board = FakeBoard.thatCanMoveDown();
+            const board = new FakeBoard({canMoveDown: true});
             let game = new Game(board, new Ticks(1, 2));
             game = game.dropOrFreezeCurrentPiece();
 
@@ -68,7 +65,7 @@ describe("Game", () => {
         });
 
         describe("should not freeze on the next tick", () => {
-            const board = FakeBoard.thatCannotMoveDown();
+            const board = new FakeBoard({canMoveDown: false});
             let game = new Game(board, new Ticks(2, 2));
             game = game.dropOrFreezeCurrentPiece();
 
@@ -83,7 +80,7 @@ describe("Game", () => {
         });
 
         describe("should freeze on the next tick", () => {
-            const board = FakeBoard.thatCannotMoveDown();
+            const board = new FakeBoard({canMoveDown: false});
             let game = new Game(board, new Ticks(2, 1));
             game = game.dropOrFreezeCurrentPiece();
 
@@ -95,6 +92,30 @@ describe("Game", () => {
                 game.dropOrFreezeCurrentPiece();
                 expect(board.frozen).toEqual(1);
             });
+        });
+    });
+
+    describe("score", () => {
+        it("is updated if there are completed rows", () => {
+            const board = new FakeBoard({completedRows: 1});
+            let game = new Game(board);
+            game = game.freezeCurrentPiece();
+            expect(game.getScore()).toEqual(1);
+        });
+
+        it("is unchanged if there are no completed rows", () => {
+            const board = new FakeBoard({completedRows: 0});
+            let game = new Game(board);
+            game = game.freezeCurrentPiece();
+            expect(game.getScore()).toEqual(0);
+        });
+
+        it("is preserved when the game updates", () => {
+            const board = new FakeBoard({completedRows: 1});
+            let game = new Game(board);
+            game = game.freezeCurrentPiece();
+            game = game.moveCurrentPieceDown();
+            expect(game.getScore()).toEqual(1);
         });
     });
 });

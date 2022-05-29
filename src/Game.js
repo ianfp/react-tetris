@@ -1,4 +1,5 @@
 import {Ticks} from "./Ticks";
+import {Score} from "./Score";
 
 /**
  * This is the parent model class that represents the entire game state.
@@ -9,9 +10,10 @@ import {Ticks} from "./Ticks";
  * of itself for any state changes.
  */
 export class Game {
-    constructor(board, ticks = new Ticks()) {
+    constructor(board, ticks = new Ticks(), score = new Score()) {
         this.board = board;
         this.ticks = ticks;
+        this.score = score;
     }
 
     isOver() {
@@ -52,8 +54,11 @@ export class Game {
      * @return {Game} the updated game
      */
     freezeCurrentPiece() {
+        const updatedBoard = this.board.freezeCurrentPiece();
+        const newScore = this.score.update(updatedBoard.countCompletedRows());
         return this.updateTicks(this.ticks.resetFreeze())
-            .updateBoard(this.board.freezeCurrentPiece().removeCompletedRows());
+            .updateBoard(updatedBoard.removeCompletedRows())
+            .updateScore(newScore);
     }
 
     /**
@@ -87,11 +92,20 @@ export class Game {
     }
 
     /**
+     * The current total number of points the player has earned.
+     *
+     * @return {number}
+     */
+    getScore() {
+        return this.score.points;
+    }
+
+    /**
      * @private
      * @return {Game} the updated game
      */
     updateBoard(newBoard) {
-        return new Game(newBoard, this.ticks);
+        return new Game(newBoard, this.ticks, this.score);
     }
 
     /**
@@ -99,7 +113,15 @@ export class Game {
      * @return {Game} the updated game
      */
     updateTicks(newTicks) {
-        return new Game(this.board, newTicks);
+        return new Game(this.board, newTicks, this.score);
+    }
+
+    /**
+     * @private
+     * @return {Game} the updated game
+     */
+    updateScore(newScore) {
+        return new Game(this.board, this.ticks, newScore);
     }
 }
 

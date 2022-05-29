@@ -172,6 +172,10 @@ export class Board {
         );
     }
 
+    countCompletedRows() {
+        return this.rows().filter(rowNo => this.isCompleteRow(rowNo)).length;
+    }
+
     /**
      * @return {Board} the updated board
      */

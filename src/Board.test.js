@@ -18,7 +18,32 @@ describe("Board", () => {
             [pos(0, 3), pos(1, 3), pos(0, 2), pos(1, 2)]
                 .forEach(position => result.isOccupied(position));
         });
-    })
+    });
+
+    describe("countCompletedRows", () => {
+        test("empty board", () => {
+            const board = Board.blank(4, 4);
+            expect(board.countCompletedRows()).toEqual(0);
+
+        });
+        test("one completed row", () => {
+            const board = new Board(4, 4, null, [
+                // bottom row
+                blockAt(0, 3), blockAt(1, 3), blockAt(2, 3), blockAt(3, 3),
+            ]);
+            expect(board.countCompletedRows()).toEqual(1);
+        });
+
+        test("two completed rows", () => {
+            const board = new Board(4, 4, null, [
+                // bottom row
+                blockAt(0, 3), blockAt(1, 3), blockAt(2, 3), blockAt(3, 3),
+                // immediately above
+                blockAt(0, 2), blockAt(1, 2), blockAt(2, 2), blockAt(3, 2),
+            ]);
+            expect(board.countCompletedRows()).toEqual(2);
+        });
+    });
 
     describe("removeCompletedRows", () => {
         it("removes adjacent rows", () => {
