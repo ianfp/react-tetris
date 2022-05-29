@@ -3,8 +3,17 @@ import React, {useEffect, useState} from "react";
 import {Board} from "./Board";
 import {pos} from "./Position";
 
-const TICK_DURATION_MS = 100; // length of animation frame in millis
-const GRAVITY_SPEED = 10; // number of ticks per drop
+/**
+ * Length of an animation frame in milliseconds.
+ *
+ * We call animation frames "ticks" for short.
+ */
+const TICK_DURATION_MS = 100;
+
+/**
+ * The number of ticks it takes "gravity" to pull the current piece down one square.
+ */
+const GRAVITY_SPEED = 10;
 
 /**
  * The top-level React component of the game.
@@ -16,7 +25,14 @@ function App() {
     const [gameOver, setGameOver] = useState(false);
     const appRef = React.createRef();
 
+    /**
+     * How many ticks remain until "gravity" pulls the current piece down one square.
+     */
     let ticksUntilDrop = GRAVITY_SPEED;
+
+    /**
+     * How many ticks remain until the current piece is locked in place.
+     */
     let ticksUntilFreeze = GRAVITY_SPEED;
 
     /**
@@ -43,6 +59,9 @@ function App() {
         "ArrowRight": controls.right,
     };
 
+    /**
+     * Call the tick() function on every animation frame.
+     */
     useEffect(() => {
         if (!gameOver) {
             const timerId = setInterval(tick, TICK_DURATION_MS);
@@ -50,6 +69,10 @@ function App() {
         }
     });
 
+    /**
+     * Focus on the app DOM element so the keyboard shortcuts work
+     * without the user having to click on the game.
+     */
     useEffect(() => {
         appRef.current.focus()
     });

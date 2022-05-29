@@ -60,6 +60,9 @@ export class Board {
         return !this.isObstructed(this.currentPiece.moveDown());
     }
 
+    /**
+     * @return {Board} the updated board
+     */
     moveCurrentPieceDown() {
         return (
             this.canMoveDown()
@@ -75,6 +78,9 @@ export class Board {
         return !this.isObstructed(this.currentPiece.moveLeft());
     }
 
+    /**
+     * @return {Board} the updated board
+     */
     moveCurrentPieceLeft() {
         return (
             this.canMoveLeft()
@@ -90,6 +96,9 @@ export class Board {
         return !this.isObstructed(this.currentPiece.moveRight());
     }
 
+    /**
+     * @return {Board} the updated board
+     */
     moveCurrentPieceRight() {
         return (
             this.canMoveRight()
@@ -105,6 +114,9 @@ export class Board {
         return !this.isObstructed(this.currentPiece.rotateClockwise());
     }
 
+    /**
+     * @return {Board} the updated board
+     */
     rotateCurrentPiece() {
         return (
             this.canBeRotated()
@@ -134,10 +146,16 @@ export class Board {
         return this.completedBlocks.some(block => block.occupies(position));
     }
 
+    /**
+     * @return {Board} the updated board
+     */
     updateCurrentPiece(newCurrentPiece) {
         return new Board(this.height, this.width, newCurrentPiece, this.completedBlocks);
     }
 
+    /**
+     * @return {Board} the updated board
+     */
     freezeCurrentPiece() {
         return new Board(
             this.height,
@@ -147,6 +165,9 @@ export class Board {
         );
     }
 
+    /**
+     * @return {Board} the updated board
+     */
     removeCompletedRows() {
         let updatedBoard = this;
         this.rows().forEach(rowNo => {
@@ -162,12 +183,18 @@ export class Board {
         return this.cols().every(colNo => this.isOccupied(pos(colNo, rowNo)));
     }
 
+    /**
+     * @return {Board} the updated board
+     */
     deleteRow(rowNo) {
         return this.updateCompletedBlocks(
             this.completedBlocks.filter(block => !block.isInRow(rowNo))
         );
     }
 
+    /**
+     * @return {Board} the updated board
+     */
     updateCompletedBlocks(newCompletedBlocks) {
         return new Board(this.height, this.width, this.currentPiece, newCompletedBlocks);
     }
