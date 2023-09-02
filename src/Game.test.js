@@ -1,5 +1,6 @@
 import {Game} from "./Game";
 import {Ticks} from "./Ticks";
+import {Score} from "./Score";
 
 class FakeBoard {
     constructor(props) {
@@ -36,7 +37,7 @@ describe("Game", () => {
     describe("dropOrFreezeCurrentPiece", () => {
         describe("should drop in two ticks", () => {
             const board = new FakeBoard({canMoveDown: true});
-            let game = new Game(board, new Ticks(2, 2));
+            let game = new Game(board, new Score(), new Ticks(2, 2));
             game = game.dropOrFreezeCurrentPiece();
 
             it("does not move the current piece", () => {
@@ -51,7 +52,7 @@ describe("Game", () => {
 
         describe("should drop on the next tick", () => {
             const board = new FakeBoard({canMoveDown: true});
-            let game = new Game(board, new Ticks(1, 2));
+            let game = new Game(board, new Score(), new Ticks(1, 2));
             game = game.dropOrFreezeCurrentPiece();
 
             it("moves the current piece down once", () => {
@@ -66,7 +67,7 @@ describe("Game", () => {
 
         describe("should not freeze on the next tick", () => {
             const board = new FakeBoard({canMoveDown: false});
-            let game = new Game(board, new Ticks(2, 2));
+            let game = new Game(board, new Score(), new Ticks(2, 2));
             game = game.dropOrFreezeCurrentPiece();
 
             it("does not freeze the current piece", () => {
@@ -81,7 +82,7 @@ describe("Game", () => {
 
         describe("should freeze on the next tick", () => {
             const board = new FakeBoard({canMoveDown: false});
-            let game = new Game(board, new Ticks(2, 1));
+            let game = new Game(board, new Score(), new Ticks(2, 1));
             game = game.dropOrFreezeCurrentPiece();
 
             it("freezes the current piece down once", () => {

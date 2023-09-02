@@ -113,8 +113,8 @@ function App() {
             onKeyDown={event => handleKeyPress(event)}
         >
             <BoardComponent board={game.board}/>
-            <ControlsComponent {...controls} setNextMove={setNextMove} />
-            <ScoreComponent score={game.getScore()} />
+            <ControlsComponent {...controls} setNextMove={setNextMove}/>
+            <ScoreComponent score={game.getScore()} level={game.getLevelNo()}/>
             <GameOverComponent gameOver={game.isOver()} restartGame={restartGame}/>
         </div>
     );
@@ -174,8 +174,13 @@ function ControlsComponent(props) {
 
 function ScoreComponent(props) {
     return (
-        <div className="score">
-            Score: {props.score}
-        </div>
+        <>
+            <div className="score">
+                Score: {props.score}
+            </div>
+            <div className="level">
+                Level: {props.level}
+            </div>
+        </>
     );
 }

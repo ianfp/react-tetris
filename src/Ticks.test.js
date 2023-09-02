@@ -44,4 +44,18 @@ describe("Ticks", () => {
             expect(ticks.shouldFreeze()).toBe(false);
         });
     });
+
+    describe("reset drop", () => {
+        const ticks = new Ticks(0, 0).resetDrop(4);
+        it("works", () => {
+            expect(ticks.shouldDrop()).toBe(false);
+        });
+    });
+
+    describe("reset freeze", () => {
+        const ticks = new Ticks(0, 0).resetFreeze(1);
+        it("works", () => {
+            expect(ticks.shouldFreeze()).toBe(false);
+        });
+    });
 });

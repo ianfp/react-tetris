@@ -1,5 +1,6 @@
 import {Ticks} from "./Ticks";
 import {Score} from "./Score";
+import {getLevel} from "./Level";
 
 /**
  * This is the parent model class that represents the entire game state.
@@ -10,10 +11,11 @@ import {Score} from "./Score";
  * of itself for any state changes.
  */
 export class Game {
-    constructor(board, ticks = new Ticks(), score = new Score()) {
+    constructor(board, score = new Score(), ticks = undefined) {
         this.board = board;
-        this.ticks = ticks;
         this.score = score;
+        this.level = getLevel(score.points);
+        this.ticks = ticks ?? new Ticks(this.level.ticks, this.level.ticks);
     }
 
     isOver() {
@@ -47,7 +49,7 @@ export class Game {
      * @return {Game} the updated game
      */
     moveCurrentPieceDown() {
-        return this.updateTicks(this.ticks.resetDrop()).updateBoard(this.board.moveCurrentPieceDown());
+        return this.updateTicks(this.ticks.resetDrop(this.level.ticks)).updateBoard(this.board.moveCurrentPieceDown());
     }
 
     /**
@@ -56,7 +58,7 @@ export class Game {
     freezeCurrentPiece() {
         const updatedBoard = this.board.freezeCurrentPiece();
         const newScore = this.score.update(updatedBoard.countCompletedRows());
-        return this.updateTicks(this.ticks.resetFreeze())
+        return this.updateTicks(this.ticks.resetFreeze(this.level.ticks))
             .updateBoard(updatedBoard.removeCompletedRows())
             .updateScore(newScore);
     }
@@ -101,11 +103,20 @@ export class Game {
     }
 
     /**
+     * The current game level.
+     *
+     * @return {number}
+     */
+    getLevelNo() {
+        return this.level.levelNo;
+    }
+
+    /**
      * @private
      * @return {Game} the updated game
      */
     updateBoard(newBoard) {
-        return new Game(newBoard, this.ticks, this.score);
+        return new Game(newBoard, this.score, this.ticks);
     }
 
     /**
@@ -113,7 +124,7 @@ export class Game {
      * @return {Game} the updated game
      */
     updateTicks(newTicks) {
-        return new Game(this.board, newTicks, this.score);
+        return new Game(this.board, this.score, newTicks);
     }
 
     /**
@@ -121,7 +132,6 @@ export class Game {
      * @return {Game} the updated game
      */
     updateScore(newScore) {
-        return new Game(this.board, this.ticks, newScore);
+        return new Game(this.board, newScore, this.ticks);
     }
 }
-
